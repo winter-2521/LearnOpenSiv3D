@@ -19,7 +19,8 @@ void Main()
 	font.addFallback(emojiFont);
 
 	// ボタンを押した回数 | Number of button presses
-	int32 count = 0;
+	int32 prev = 0;
+	int32 count = 1;
 
 	// チェックボックスの状態 | Checkbox state
 	bool checked = false;
@@ -29,6 +30,7 @@ void Main()
 
 	// プレイヤーの X 座標 | Player's X position
 	double playerPosX = 400;
+	double playerPosY = 540;
 
 	// プレイヤーが右を向いているか | Whether player is facing right
 	bool isPlayerFacingRight = true;
@@ -60,11 +62,13 @@ void Main()
 		// 半透明の円を描く | Draw a semi-transparent circle
 		Circle{ Cursor::Pos(), 40 }.draw(ColorF{ 1.0, 0.0, 0.0, 0.5 });
 
-		// ボタン | Button
+		// フィボナッチボタン | Button
 		if (SimpleGUI::Button(U"count: {}"_fmt(count), Vec2{ 520, 370 }, 120, (checked == false)))
 		{
 			// カウントを増やす | Increase the count
-			++count;
+			int32 tmp = count;
+			count = prev + count;
+			prev = tmp;
 		}
 
 		// チェックボックス | Checkbox
@@ -73,16 +77,30 @@ void Main()
 		// スライダー | Slider
 		SimpleGUI::Slider(U"speed: {:.1f}"_fmt(speed), speed, 100, 400, Vec2{ 520, 420 }, 140, 120);
 
+		// 上キーが押されていたら | If left key is pressed
+		if (KeyW.pressed())
+		{
+			// プレイヤーが上に移動する | Player moves left
+			playerPosY = Max((playerPosY - speed * Scene::DeltaTime()), 30.0);
+		}
+
 		// 左キーが押されていたら | If left key is pressed
-		if (KeyLeft.pressed())
+		if (KeyA.pressed())
 		{
 			// プレイヤーが左に移動する | Player moves left
 			playerPosX = Max((playerPosX - speed * Scene::DeltaTime()), 60.0);
 			isPlayerFacingRight = false;
 		}
 
+		// 下キーが押されていたら | If left key is pressed
+		if (KeyS.pressed())
+		{
+			// プレイヤーが下に移動する | Player moves left
+			playerPosY = Min((playerPosY + speed * Scene::DeltaTime()), 560.0);
+		}
+
 		// 右キーが押されていたら | If right key is pressed
-		if (KeyRight.pressed())
+		if (KeyD.pressed())
 		{
 			// プレイヤーが右に移動する | Player moves right
 			playerPosX = Min((playerPosX + speed * Scene::DeltaTime()), 740.0);
@@ -90,7 +108,7 @@ void Main()
 		}
 
 		// プレイヤーを描く | Draw the player
-		emoji.scaled(0.75).mirrored(isPlayerFacingRight).drawAt(playerPosX, 540);
+		emoji.scaled(0.75).mirrored(isPlayerFacingRight).drawAt(playerPosX, playerPosY);
 	}
 }
 
